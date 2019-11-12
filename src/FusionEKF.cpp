@@ -68,26 +68,27 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    */
   if (!is_initialized_) {
     // first measurement
-    cout << "EKF: " << endl;
     ekf_.x_ = VectorXd(4);
     ekf_.x_ << 1, 1, 1, 1;
 
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       //rho, phi, rho dot
       float rho = measurement_pack.raw_measurements_(0);
-      float phi = measurement_pack.raw_measurements_(1);
+      float theta = measurement_pack.raw_measurements_(1);
       float rhoDot = measurement_pack.raw_measurements_(2);
 
-      ekf_.x_(0) = rho * cos(phi);
-      ekf_.x_(1) = rho * sin(phi);
-      ekf_.x_(2) = rhoDot * cos(phi);
-      ekf_.x_(3) = rhoDot * sin(phi);
+      ekf_.x_(0) = rho * cos(theta);
+      ekf_.x_(1) = rho * sin(theta);
+      ekf_.x_(2) = rhoDot * cos(theta);
+      ekf_.x_(3) = rhoDot * sin(theta);
+      cout << "EKF Radar Initialisation Done." << endl;
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
       //x
       ekf_.x_(0) = measurement_pack.raw_measurements_(0);
       //y
       ekf_.x_(1) = measurement_pack.raw_measurements_(1);
+      cout << "EKF Laser Initialisation Done." << endl;
     }
 
     //it is initialised now
@@ -127,6 +128,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   
   //predict with all set up
   ekf_.Predict();
+
+  cout << "EKF Prediction Done." << endl;
 
   /**
    * Update
