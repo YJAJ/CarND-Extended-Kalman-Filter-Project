@@ -108,7 +108,7 @@ int main() {
           ground_truth.push_back(gt_values);
 
           int start = 0;
-          count << start;
+          cout << start;
 
           // Call ProcessMeasurement(meas_package) for Kalman filter
           fusionEKF.ProcessMeasurement(meas_package);       
