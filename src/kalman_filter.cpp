@@ -1,7 +1,10 @@
 #include "kalman_filter.h"
+#include <iostream>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+using std::cout;
+using std::endl;
 
 KalmanFilter::KalmanFilter() {}
 
@@ -21,34 +24,42 @@ void KalmanFilter::Predict() {
   //overall, predict new state vector and covariance (errors) of this prediction
   //state transition matrix*state vector + noise with gaussian distribution (omitted as it has a mean around 0)
   x_ = F_*x_;
+  cout << "x_: " << x_ << endl;
   //F is state transition matrix with delta time
   MatrixXd Ft = F_.transpose();
  //state covariance matrix P representing error in process, in addition to uncertainty from acceleration (process covariance Q)
   P_ = F_* P_ * Ft + Q_;
+  cout << "P_: " << P_ << endl;
 }
 
 void KalmanFilter::UpdateBase(const VectorXd &y){
   //total covariance error including process covariance error and measurement covariance error
   //H_ measurement transition matrix - if radar, jacobian matrix passed
   MatrixXd Ht = H_.transpose();
-  MatrixXd S = H_ * P_ * Ht + R_; 
+  MatrixXd S = H_ * P_ * Ht + R_;
+  cout << "S_: " << S << endl; 
   //update Kalman gain - state covariance over total error calculating weight
   MatrixXd Si = S.inverse();
   MatrixXd K = P_ * Ht * Si;
+  cout << "K: " << K << endl;
 
   //apply kalman gain weight (if process error is large or measurement error is small, K is large) and update state vector
   x_ = x_ + (K*y);
+  cout << "x_: " << x_ << endl;
   //weight and update process covariance
   MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
   P_ = (I - K * H_ ) * P_;
+  cout << "P_: " << P_ << endl;
 }
 
 void KalmanFilter::Update(const VectorXd &z) {
   //transition state vector to the measurement space of a sensor
   VectorXd z_pred = H_ * x_;
+  cout << "z_pred: " << z_pred << endl;
 
   //calculate error
   VectorXd y = z - z_pred;
+  cout << "y: " << y << endl;
 
   //calculate kalman gain, weight and update state vector and process covariance
   UpdateBase(y);
