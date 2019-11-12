@@ -104,8 +104,11 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    */
   //determine dt and reset current time to previous time
   float dt = (measurement_pack.timestamp_ - previous_timestamp_)/1000000.0;
+  cout << "dt: " << dt << endl;
   //make current to previous
   previous_timestamp_ = measurement_pack.timestamp_;
+
+  cout << "prev timestamp: " << previous_timestamp_ << endl;
 
   //state transition matrix multiply dt - update transition matrix
   ekf_.F_(0, 2) = dt;
