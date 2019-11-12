@@ -130,7 +130,7 @@ int main() {
           estimations.push_back(estimate);
 
           VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
-          cout << "RMSE: " << RSME << endl;
+          cout << "RMSE: " << RMSE << endl;
           json msgJson;
           msgJson["estimate_x"] = p_x;
           msgJson["estimate_y"] = p_y;
