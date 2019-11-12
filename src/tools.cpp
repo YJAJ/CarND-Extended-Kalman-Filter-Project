@@ -24,7 +24,7 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   }
   //calculate rmse
   //1. calculation of squared difference b/w estimation and ground truth
-  for (int i=0; i<estimations.size(); ++i){
+  for (unsigned int i=0; i<estimations.size(); ++i){
     VectorXd difference = estimations[i]-ground_truth[i];
 
     difference = difference.cwiseProduct(difference);
