@@ -7,6 +7,7 @@
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+using std::cout;
 using std::string;
 using std::vector;
 
