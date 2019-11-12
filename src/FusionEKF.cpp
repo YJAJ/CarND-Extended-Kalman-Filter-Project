@@ -113,6 +113,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   //state transition matrix multiply dt - update transition matrix
   ekf_.F_(0, 2) = dt;
   ekf_.F_(1, 3) = dt;
+
+  cout << "ekf_.F_: " << ekf_.F_ << endl;
   
   //square, cube, ^4
   float dt2 = dt * dt;
@@ -128,6 +130,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
             0, dt4/4*acc_y, 0, dt3/2*acc_y,
             dt3/2*acc_x, 0, dt2*acc_x, 0,
             0, dt3/2*acc_y, 0, dt2*acc_y;
+  
+  cout << "ekf_.Q_: " << ekf_.Q_ << endl;
   
   //predict with all set up
   ekf_.Predict();
