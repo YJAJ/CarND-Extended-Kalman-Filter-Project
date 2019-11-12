@@ -88,7 +88,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       ekf_.x_(0) = measurement_pack.raw_measurements_(0);
       //y
       ekf_.x_(1) = measurement_pack.raw_measurements_(1);
-      cout << "EKF Laser Initialisation Done." << endl;
+      cout << "EKF Laser Initialisation Done." << ekf_.x_ << endl;
     }
 
     //it is initialised now
