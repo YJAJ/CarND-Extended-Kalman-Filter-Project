@@ -17,8 +17,8 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   VectorXd rmse(4);
   rmse << 0, 0, 0, 0;
 
-  //integrity check: 1) estimation vector size larger than 0; 2) estimation vector size same with ground_truth vector size
-  if (estimations.size()==0 || estimations.size()!=ground_truth.size()){
+  //integrity check: 1) estimation vector size larger than 0; 2) ground truth vector size larger than 0; 3) estimation vector size same with ground_truth vector size
+  if (estimations.size()==0 || ground_truth.size()==0 || estimations.size()!=ground_truth.size()){
     cout << "Check your estimation or ground truth data set." << endl;
     return rmse;
   }
@@ -55,7 +55,7 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
 
   //integrity check that denominator is not zero
   if (fabs(x2y2)<0.0001){
-    cout << "Jacobian denominator is zero" << endl;
+    cout << "Division by zero error - Jacobian denominator is zero." << endl;
     return Hj;
   }
 

@@ -64,15 +64,15 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   float dnom = px*px + py*py;
   dnom = sqrt(dnom);
   //integrity check for denominators before conversion
-  if (fabs(dnom)<0.00001){
-    px += 0.00001;
-    py += 0.00001;
+  if (fabs(dnom)<0.0001){
+    px += 0.0001;
+    py += 0.0001;
   }
 
   //convert from cartesian coordinates to polar coordinates
   float rho = dnom;
   float theta = atan2(py, px);
-  float rhoDot = px*vx+py*vy/dnom;
+  float rhoDot = (px*vx+py*vy)/dnom;
   
   VectorXd Hj = VectorXd(3);
   Hj << rho, theta, rhoDot;
@@ -85,7 +85,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   while (eTheta>M_PI){
     eTheta -= 2*M_PI;
   }
-  while (eTheta<M_PI){
+  while (eTheta<-M_PI){
     eTheta += 2*M_PI;
   }
   y(1) = eTheta;
