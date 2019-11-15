@@ -21,7 +21,7 @@ FusionEKF::FusionEKF() {
   R_laser_ = MatrixXd(2, 2); //laser measurement covariance matrix
   R_radar_ = MatrixXd(3, 3); //radar measurement covariance matrix
   H_laser_ = MatrixXd(2, 4); //measurement transition matrix for laser
-  Hj_ = MatrixXd(3, 4); //measurement transition matrix for radar - jacobian
+  Hj_ = MatrixXd(3, 4); //measurement transition matrix for radar - jacobian matrix for non-linear to linear
 
   //measurement covariance matrix - laser (uncertainty in measurement)
   R_laser_ << 0.0225, 0,
@@ -54,7 +54,7 @@ FusionEKF::FusionEKF() {
             0, 1, 0, 0,
             0, 0, 1000, 0,
             0, 0, 0, 1000;
-            
+  //process covariance matrix (uncertainty in process) is initialised in prediction with delta time
 }
 
 /**
@@ -99,50 +99,30 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     return;
   }
 
-  /**
-   * Prediction
-   */
+  //1. predict step
+
   //determine dt and reset current time to previous time
   float dt = (measurement_pack.timestamp_ - previous_timestamp_)/1000000.0;
-  cout << "dt: " << dt << endl;
   //make current to previous
   previous_timestamp_ = measurement_pack.timestamp_;
-
-  cout << "prev timestamp: " << previous_timestamp_ << endl;
 
   //state transition matrix multiply dt - update transition matrix
   ekf_.F_(0, 2) = dt;
   ekf_.F_(1, 3) = dt;
-
-  cout << "ekf_.F_: " << ekf_.F_ << endl;
   
   //square, cube, ^4
   float dt2 = dt * dt;
   float dt3 = dt2 * dt;
   float dt4 = dt3 * dt;
 
-  //process noise acceleration
+  //process noise acceleration - 9 is provided by the instruction
   float acc_x = 9;
   float acc_y = 9;
-  
-  //process covariance matrix Q
-  ekf_.Q_ = MatrixXd(4, 4);
-  ekf_.Q_ << dt4/4*acc_x, 0, dt3/2*acc_x, 0,
-            0, dt4/4*acc_y, 0, dt3/2*acc_y,
-            dt3/2*acc_x, 0, dt2*acc_x, 0,
-            0, dt3/2*acc_y, 0, dt2*acc_y;
-  
-  cout << "ekf_.Q_: " << ekf_.Q_ << endl;
   
   //predict with all set up
   ekf_.Predict();
 
-  cout << "EKF Prediction Done." << endl;
-
-  /**
-   * Update
-   */
-
+  //2 and 3. calculate Kalman Gain and update step
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     Tools tool;
     Hj_ = tool.CalculateJacobian(ekf_.x_);
@@ -150,14 +130,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     ekf_.R_ = R_radar_; //measurement covariance for radar
     //update with extended kalman filter process
     ekf_.UpdateEKF(measurement_pack.raw_measurements_);
-  } else {
+  } else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
     ekf_.H_ = H_laser_; //measurement transition matrix
     ekf_.R_ = R_laser_; //measurement covariance for laser
-    //update with usual kalman filter process
+    //update with kalman filter process
     ekf_.Update(measurement_pack.raw_measurements_);
   }
-
-  // print the output
-  cout << "x_ = " << ekf_.x_ << endl;
-  cout << "P_ = " << ekf_.P_ << endl;
 }

@@ -21,7 +21,7 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
 }
 
 void KalmanFilter::Predict() {
-  //overall, predict new state vector and covariance (errors) of this prediction
+  //1. predict step - overall, predict new state vector and covariance (errors) of this prediction
   //state transition matrix*state vector + noise with gaussian distribution (omitted as it has a mean around 0)
   x_ = F_*x_;
   cout << "x_: " << x_ << endl;
@@ -37,19 +37,18 @@ void KalmanFilter::UpdateBase(const VectorXd &y){
   //H_ measurement transition matrix - if radar, jacobian matrix passed
   MatrixXd Ht = H_.transpose();
   MatrixXd S = H_ * P_ * Ht + R_;
-  cout << "S_: " << S << endl; 
-  //update Kalman gain - state covariance over total error calculating weight
+
+  //2. calculate Kalman Gain - state covariance over total error calculating weight
   MatrixXd Si = S.inverse();
   MatrixXd K = P_ * Ht * Si;
-  cout << "K: " << K << endl;
 
-  //apply kalman gain weight (if process error is large or measurement error is small, K is large) and update state vector
+  //3. weigh with Kalman Gain and update state vector 
+  //i.e. apply kalman gain weight (if process error is large or measurement error is small, K is large) and update state vector
   x_ = x_ + (K*y);
-  cout << "x_: " << x_ << endl;
-  //weight and update process covariance
+
+  //3. weigh with Kalman Gain and update process covariance
   MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
   P_ = (I - K * H_ ) * P_;
-  cout << "P_: " << P_ << endl;
 }
 
 void KalmanFilter::Update(const VectorXd &z) {
@@ -71,6 +70,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   float py = x_(1);
   float vx = x_(2);
   float vy = x_(3);
+  
   //precompute denominator
   float dnom = px*px + py*py;
   dnom = sqrt(dnom);

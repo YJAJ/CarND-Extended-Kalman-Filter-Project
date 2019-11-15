@@ -3,6 +3,7 @@
 #include <iostream>
 #include "json.hpp"
 #include "FusionEKF.h"
+#include "UnscentedKF.h"
 #include "tools.h"
 
 using Eigen::MatrixXd;
@@ -34,7 +35,7 @@ string hasData(string s) {
 int main() {
   uWS::Hub h;
 
-  // Create a Kalman Filter instance
+  //create a extended kalman Filter instance (radar and lidar)
   FusionEKF fusionEKF;
 
   // used to compute the RMSE later
@@ -109,8 +110,8 @@ int main() {
           gt_values(3) = vy_gt;
           ground_truth.push_back(gt_values);
 
-          // Call ProcessMeasurement(meas_package) for Kalman filter
-          fusionEKF.ProcessMeasurement(meas_package);       
+          // Call ProcessMeasurement(meas_package) for Extended Kalman filter
+          fusionEKF.ProcessMeasurement(meas_package);
 
           // Push the current estimated x,y positon from the Kalman filter's 
           //   state vector
@@ -122,6 +123,7 @@ int main() {
           double v1  = fusionEKF.ekf_.x_(2);
           double v2 = fusionEKF.ekf_.x_(3);
 
+          //place estimate records
           estimate(0) = p_x;
           estimate(1) = p_y;
           estimate(2) = v1;
@@ -130,7 +132,7 @@ int main() {
           estimations.push_back(estimate);
 
           VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
-          cout << "RMSE: " << RMSE << endl;
+
           json msgJson;
           msgJson["estimate_x"] = p_x;
           msgJson["estimate_y"] = p_y;
@@ -139,7 +141,7 @@ int main() {
           msgJson["rmse_vx"] = RMSE(2);
           msgJson["rmse_vy"] = RMSE(3);
           auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
-          cout << msg << endl;
+
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
 
         }  // end "telemetry" if
@@ -152,19 +154,6 @@ int main() {
 
   }); // end h.onMessage
 
-  h.onHttpRequest([](uWS::HttpResponse *res, uWS::HttpRequest req, char *data, size_t, size_t) {
-    const std::string s = "<h1>Hello world!</h1>";
-    if (req.getUrl().valueLength == 1)
-    {
-      res->end(s.data(), s.length());
-    }
-    else
-    {
-      // i guess this should be done more gracefully?
-      res->end(nullptr, 0);
-    }
-  });
-  
   h.onConnection([&h](uWS::WebSocket<uWS::SERVER> ws, uWS::HttpRequest req) {
     std::cout << "Connected!!!" << std::endl;
   });

@@ -41,7 +41,7 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
 }
 
 MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
-  //initialise jacobian matrix h - 3 (rho, phi, rho dot) by 4 (x, y, vx, vy)
+  //initialise jacobian matrix h - 3 (rho, theta, rho dot) by 4 (x, y, vx, vy)
   MatrixXd Hj(3, 4);
 
   float px = x_state(0);
@@ -59,7 +59,7 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
     return Hj;
   }
 
-  //calculation of jacobian matrix
+  //calculation of jacobian matrix - partial derivatives
   Hj << (px/rx2y2), (py/rx2y2), 0, 0,
        -(py/x2y2), (px/x2y2), 0, 0,
        py*(vx*py - vy*px)/x32y32, px*(vy*px - vx*py)/x32y32, px/rx2y2, py/rx2y2;
