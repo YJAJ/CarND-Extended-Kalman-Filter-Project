@@ -118,6 +118,12 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   //process noise acceleration - 9 is provided by the instruction
   float acc_x = 9;
   float acc_y = 9;
+
+  //process covariance matrix Q
+  ekf_.Q_ << dt4/4*acc_x, 0, dt3/2*acc_x, 0,
+            0, dt4/4*acc_y, 0, dt3/2*acc_y,
+            dt3/2*acc_x, 0, dt2*acc_x, 0,
+            0, dt3/2*acc_y, 0, dt2*acc_y;
   
   //predict with all set up
   ekf_.Predict();
