@@ -120,7 +120,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   float acc_y = 9;
 
   //process covariance matrix Q
-  ekf_.Q_ = VectorXd(4, 4);
+  ekf_.Q_ = MatrixXd(4, 4);
   ekf_.Q_ << dt4/4*acc_x, 0, dt3/2*acc_x, 0,
             0, dt4/4*acc_y, 0, dt3/2*acc_y,
             dt3/2*acc_x, 0, dt2*acc_x, 0,
